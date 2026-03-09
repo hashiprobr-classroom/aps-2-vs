@@ -2,6 +2,10 @@
 
 #include "fourier.h"
 
+#include <math.h>
+
+#include "fourier.h"
+
 void normalize(complex s[], int n) {
     for (int k = 0; k < n; k++) {
         s[k].a /= n;
@@ -36,6 +40,38 @@ void nft_inverse(complex t[], complex s[], int n) {
 }
 
 void fft(complex s[], complex t[], int n, int sign) {
+    if (n == 1) {
+        t[0].a = s[0].a;
+        t[0].b = s[0].b;
+        return;
+    }
+
+    int metade = n / 2;
+
+    complex par[MAX_SIZE], impar[MAX_SIZE];
+    complex te[MAX_SIZE], to[MAX_SIZE];
+
+    for (int j = 0; j < metade; j++) {
+        par[j] = s[2 * j];
+        impar[j]  = s[2 * j + 1];
+    }
+
+    fft(par, te, metade, sign);
+    fft(impar,  to, metade, sign);
+
+    for (int k = 0; k < metade; k++) {
+        double x = sign * 2 * PI * k / n;
+        double cosx = cos(x);
+        double sinx = sin(x);
+
+        double wr = cosx * to[k].a - sinx * to[k].b;
+        double wi = cosx * to[k].b + sinx * to[k].a;
+
+        t[k].a        = te[k].a + wr;
+        t[k].b        = te[k].b + wi;
+        t[k + metade].a = te[k].a - wr;
+        t[k + metade].b = te[k].b - wi;
+    }
 }
 
 void fft_forward(complex s[], complex t[], int n) {
