@@ -48,29 +48,29 @@ void fft(complex s[], complex t[], int n, int sign) {
 
     int metade = n / 2;
 
-    complex par[MAX_SIZE], impar[MAX_SIZE];
-    complex te[MAX_SIZE], to[MAX_SIZE];
+    complex par[metade], impar[metade];
+    complex par_fft[metade], impar_fft[metade];
 
     for (int j = 0; j < metade; j++) {
         par[j] = s[2 * j];
-        impar[j]  = s[2 * j + 1];
+        impar[j] = s[2 * j + 1];
     }
 
-    fft(par, te, metade, sign);
-    fft(impar,  to, metade, sign);
+    fft(par, par_fft, metade, sign);
+    fft(impar, impar_fft, metade, sign);
 
     for (int k = 0; k < metade; k++) {
         double x = sign * 2 * PI * k / n;
         double cosx = cos(x);
         double sinx = sin(x);
 
-        double wr = cosx * to[k].a - sinx * to[k].b;
-        double wi = cosx * to[k].b + sinx * to[k].a;
+        double wr = cosx * impar_fft[k].a - sinx * impar_fft[k].b;
+        double wi = cosx * impar_fft[k].b + sinx * impar_fft[k].a;
 
-        t[k].a        = te[k].a + wr;
-        t[k].b        = te[k].b + wi;
-        t[k + metade].a = te[k].a - wr;
-        t[k + metade].b = te[k].b - wi;
+        t[k].a = par_fft[k].a + wr;
+        t[k].b = par_fft[k].b + wi;
+        t[k + metade].a = par_fft[k].a - wr;
+        t[k + metade].b = par_fft[k].b - wi;
     }
 }
 
